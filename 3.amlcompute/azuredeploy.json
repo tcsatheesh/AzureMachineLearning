@@ -1,0 +1,104 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "workspaceName": {
+            "type": "string",
+            "defaultValue": "[concat('workspace', uniqueString(resourceGroup().id))]",
+            "metadata": {
+                "description": "Specifies the name of the Azure Machine Learning service workspace."
+            }
+        },
+        "location": {
+            "type": "string",
+            "allowedValues": [
+                "australiaeast",
+                "brazilsouth",
+                "canadacentral",
+                "centralus",
+                "eastasia",
+                "eastus",
+                "eastus2",
+                "francecentral",
+                "japaneast",
+                "koreacentral",
+                "northcentralus",
+                "northeurope",
+                "southeastasia",
+                "southcentralus",
+                "uksouth",
+                "westcentralus",
+                "westus",
+                "westus2",
+                "westeurope"
+            ],
+            "metadata": {
+                "description": "Specifies the location for all resources."
+            }
+        },
+        "amlComputeName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the compute instance"
+            }
+        },
+        "vnetResourceGroupName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the resource group with the vnet"
+            }
+        },
+        "vnetName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the vnet"
+            }
+        },
+        "subnetName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the subnet"
+            }
+        },
+        "vmSize": {
+            "type": "string",
+            "defaultValue": "Standard_D3_v2",
+            "metadata": {
+                "description": "Specifies the VM size of the agents."
+            }
+        },
+        "maxNodeCount": {
+            "type": "int",
+            "defaultValue": 5,
+            "metadata": {
+                "description": "Maximum number of nodes in the pool."
+            }
+        }
+    },
+    "variables": {
+    },
+    "resources": [
+        {
+            "type": "Microsoft.MachineLearningServices/workspaces/computes",
+            "apiVersion": "2019-11-01",
+            "name": "[concat(parameters('workspaceName'), '/', parameters('amlComputeName'))]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "computeType": "AmlCompute",
+                "properties": {
+                    "vmSize": "[parameters('vmSize')]",
+                    "vmPriority": "dedicated",
+                    "scaleSettings": {
+                        "minNodeCount": 1,
+                        "maxNodeCount": "[parameters('maxNodeCount')]",
+                        "nodeIdleTimeBeforeScaleDown": "PT120S"
+                    },
+                    "subnet": {
+                        "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('vnetResourceGroupName'), '/providers/Microsoft.Network/virtualNetworks/', parameters('vnetName'), '/subnets/', parameters('subnetName'))]"
+                    },
+                    "remoteLoginPortPublicAccess": "NotSpecified"
+                }
+            }
+        }
+    ]
+}
