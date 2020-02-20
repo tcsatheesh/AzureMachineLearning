@@ -138,6 +138,10 @@
       "apiVersion": "2019-11-01",
       "name": "[parameters('workspaceName')]",
       "location": "[parameters('location')]",
+      "sku": {
+        "name": "Enterprise",
+        "tier": "Enterprise"
+      },
       "dependsOn": [
         "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
         "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
